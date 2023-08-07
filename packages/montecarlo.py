@@ -30,12 +30,13 @@ class Die():
         return([np.random.choice(self._die_info.index, size=1, p=self._die_info['Weights'] / self._die_info['Weights'].sum())[0] for i in range(num_rolls)])
     def die_state(self):
         '''returns a shallow copy of the die_info'''
-        copy_die_info = self._die_info.copy()
+        copy_die_info = copy.deepcopy(self._die_info)
         return(copy_die_info)
 
 class Game():
     def __init__(self, die_list):
-        '''example'''
+        '''initializes game and checks die list'''
+        self.die_list = die_list
         if not all(isinstance(die,Die) for die in die_list):
             raise ValueError("Your list doesn't have all die in it!")
         faces = die_list[0].die_state()
@@ -45,10 +46,27 @@ class Game():
             if set(test_faces_df.index)!=face_values:
                 raise ValueError("The faces on your dice are different!")
     def play(self, num_rolls):
-        results_df = pd.DataFrame()
+        '''creates a set of rolls'''
+        _results_df = pd.DataFrame(index=range(num_rolls))
+        for i in range(len(self.die_list)):
+            results = self.die_list[i].roll_die(num_rolls)
+            _results_df[i] = results
+        self._results_df = _results_df.rename_axis("Roll", axis=0)
+        return(self._results_df)
+    def return_play(self, format='wide'):
+        if format != 'wide' and format!='narrow':
+            raise ValueError("You've supplied an invalid format type!")
+        if format=='narrow':
+            narrow_df = self._results_df.stack()
+            return(narrow_df.index)
+        copy_roll_results = copy.deepcopy(self._results_df)
+    
 
 
 exampleDie1 = Die(np.array([1,2,3,4,5,6]))
-exampleDie2 = Die(np.array([1,2,7,4,5,6]))
+exampleDie2 = Die(np.array([1,2,3,4,5,6]))
 dieList = [exampleDie1, exampleDie2]
-Game(dieList)
+testgame = Game(dieList)
+testgame.play(4)
+print(testgame.return_play(format='narrow'))
+
