@@ -46,7 +46,7 @@ class Game():
             if set(test_faces_df.index)!=face_values:
                 raise ValueError("The faces on your dice are different!")
     def play(self, num_rolls):
-        '''creates a set of rolls'''
+        '''creates a set of rolls from the supplied die list'''
         _results_df = pd.DataFrame(index=range(num_rolls))
         for i in range(len(self.die_list)):
             results = self.die_list[i].roll_die(num_rolls)
@@ -54,7 +54,7 @@ class Game():
         self._results_df = _results_df.rename_axis("Roll", axis=0)
         return(self._results_df)
     def return_play(self, format='wide'):
-        '''Doc strings'''
+        '''returns a wide or narrow data frame with the results from the rolls'''
         if format != 'wide' and format!='narrow':
             raise ValueError("You've supplied an invalid format type!")
         if format=='narrow':
@@ -65,13 +65,13 @@ class Game():
 
 class Analyzer():
     def __init__(self, game):
-        '''doc strings'''
+        '''initializes the analyzer and checks for a game'''
         if not isinstance(game, Game):
             raise ValueError("You have not supplied a game!")
         self.game = game
         self.die_list = self.game.die_list
     def jackpot(self):
-        '''doc strings'''
+        '''counts how many times all the die objects were equal on the same roll'''
         _results_df = self.game._results_df
         jackpot_count = 0
         print(_results_df)
@@ -81,7 +81,7 @@ class Analyzer():
             jackpot_count += jackpot
         return(jackpot_count)
     def facecounts(self):
-        '''doc strings'''
+        '''returns a dataframe with a count for each face and how many times it was rolled in each roll'''
         _results_df = self.game._results_df
         faces = self.die_list[0].die_state().index
         facecounts_df = pd.DataFrame(columns=faces, index = _results_df.index)
@@ -91,10 +91,14 @@ class Analyzer():
             counts = rolls.value_counts().reindex(facecounts_df.columns, fill_value=0)
             facecounts_df.loc[index] = counts
         return(facecounts_df)
-    def combocount(self):
-        '''doc strings'''
+    #def combocount(self):
+        #'''returns a dataframe with a multi index of distinct combinations with their number of counts'''
     def permcount(self):
-        '''docstrings'''
+        '''returns a dataframe with a multi index of distinct permutations with their number of counts'''
+        _results_df = self.game._results_df
+        perm_list = set(_results_df.values())
+        perm_df = pd.DataFrame(columns = 'Count', index=perm_list)
+        print(perm_df)
 
 
 
@@ -106,4 +110,5 @@ testgame.play(300)
 analysisTest = Analyzer(testgame)
 print(analysisTest.facecounts())
 print(analysisTest.jackpot())
+analysisTest.permcount()
 
