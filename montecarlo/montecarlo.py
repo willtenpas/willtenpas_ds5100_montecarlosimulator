@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd
 import copy
 
+'''Class docstrings should describe the general purpose of the class.
+
+Method docstrings should describe the purpose of the method, any input arguments, any return values if applicable, and any changes to the object’s state that the user should know about.
+
+Input argument descriptions should describe data types and formats as well as any default values.'''
+
 class Die():
     def __init__(self, faces):
         '''Initializes the faces and assigns initial weights as while as checking for data types'''
@@ -91,24 +97,31 @@ class Analyzer():
             counts = rolls.value_counts().reindex(facecounts_df.columns, fill_value=0)
             facecounts_df.loc[index] = counts
         return(facecounts_df)
-    #def combocount(self):
-        #'''returns a dataframe with a multi index of distinct combinations with their number of counts'''
+    def combocount(self):
+        '''returns a dataframe with a multi index of distinct combinations with their number of counts'''
+        #combinations don't care about order so H,T is the same as T,H
+        _results_df = self.game._results_df
+        #sort each combo so that T,H and H,T both become H,T, then make the results a tuple
+        comb_list = []
+        for row in _results_df.values:
+            tuprow = tuple(sorted(row))
+            comb_list.append(tuprow)
+        #then we create a set of this combo_list so that we only get unique combos
+        unique_comb = set(comb_list)
+        #now we do a count on the set and make a dictionary with the combo as the key and the count as the value
+        comb_counts = {comb: comb_list.count(comb) for comb in unique_comb}
+        #then we go thorugh and put this into a dataframe
+        comb_df = pd.DataFrame(comb_counts.items(), columns=['Combination', 'Count'])
+        return(comb_df)
     def permcount(self):
         '''returns a dataframe with a multi index of distinct permutations with their number of counts'''
         _results_df = self.game._results_df
-        perm_list = set(_results_df.values())
-        perm_df = pd.DataFrame(columns = 'Count', index=perm_list)
-        print(perm_df)
-
-
-
-exampleDie1 = Die(np.array(['Will','August']))
-exampleDie2 = Die(np.array(['Will','August']))
-dieList = [exampleDie1, exampleDie2]
-testgame = Game(dieList)
-testgame.play(300)
-analysisTest = Analyzer(testgame)
-print(analysisTest.facecounts())
-print(analysisTest.jackpot())
-analysisTest.permcount()
-
+        #need to conver each row entry into tuples, where the cell entry is an entry in the tuple
+        perm_list = list(map(tuple, _results_df.values))
+        #then we create a set of this perm_list so that we only get unique permutations
+        unique_permutations = set(perm_list)
+        #now we do a count on the set and make a dictionary with the permutation as the key and the ocunt as the value
+        perm_counts = {perm: perm_list.count(perm) for perm in unique_permutations}
+        #then we go thorugh and put this into a dataframe
+        perm_df = pd.DataFrame(perm_counts.items(), columns=['Permutation', 'Count'])
+        return(perm_df)
