@@ -70,6 +70,7 @@ class Game():
         copy_roll_results = copy.deepcopy(self._results_df)
 
 class Analyzer():
+    '''The class used to analyze played games. Requires a Game() class to initialize.'''
     def __init__(self, game):
         '''initializes the analyzer and checks for a game'''
         if not isinstance(game, Game):
