@@ -2,15 +2,14 @@ import numpy as np
 import pandas as pd
 import copy
 
-'''Class docstrings should describe the general purpose of the class.
-
-Method docstrings should describe the purpose of the method, any input arguments, any return values if applicable, and any changes to the object’s state that the user should know about.
-
-Input argument descriptions should describe data types and formats as well as any default values.'''
-
 class Die():
+    '''This class is used to create, modify, and roll die.'''
     def __init__(self, faces):
-        '''Initializes the faces and assigns initial weights as while as checking for data types'''
+        '''ARGS: faces, takes an np.array.
+        DESCRIPTION: 
+        Initializes the faces and assigns initial weights as while as checking for data types. Turns the array
+        into a dataframe with faces for index and weight values, initially set to 1, in a column. Supplied array must have distinct values in string or 
+        number format.'''
         # checking that it is a numpy array
         if type(faces) != type(np.array([])):
             raise TypeError("That's not an array!")
@@ -25,23 +24,38 @@ class Die():
         #creates private DF for weights and faces
         self._die_info = pd.DataFrame({'Weights':weights}, index=faces)
     def change_weight(self, face, new_weight):
-        '''Reassigns weights for given face values after checking their types'''
+        '''ARGS: 
+        face: takes str or number depending on type of faces.
+        new_weight: takes number type.
+        DESCRIPTION: 
+        Takes the face you want to be changed and its new weight. Reassigns weights for given face values after checking their types.
+        Weight must be a numeric type.'''
         if face not in self._die_info.index:
             raise IndexError("The given face value is not present in the die.")
         if not np.issubdtype(type(new_weight), np.number):
             raise TypeError("The new weight must be a numeric type.")
         self._die_info.loc[face, 'Weights'] = new_weight
     def roll_die(self, num_rolls=1):
-        '''rolls the dice a specified amount of times and returns an unstored list of results'''
+        '''ARGS:
+        num_rolls: defaults to 1, takes integer.
+        DESCRIPTION:
+        Rolls the dice a specified amount of times and returns an unstored list of results.'''
         return([np.random.choice(self._die_info.index, size=1, p=self._die_info['Weights'] / self._die_info['Weights'].sum())[0] for i in range(num_rolls)])
     def die_state(self):
-        '''returns a shallow copy of the die_info'''
+        '''ARGS:
+        none
+        DESCRIPTION:
+        Returns a deep copy of the die_info data frame.'''
         copy_die_info = copy.deepcopy(self._die_info)
         return(copy_die_info)
 
 class Game():
+    '''This class is used to roll multiple die of the same length at once'''
     def __init__(self, die_list):
-        '''initializes game and checks die list'''
+        '''ARGS:
+        die_list: list of die objects, created using Die().
+        DESCRIPTION:
+        Initializes game and verifies die list.'''
         self.die_list = die_list
         if not all(isinstance(die,Die) for die in die_list):
             raise ValueError("Your list doesn't have all die in it!")
@@ -52,7 +66,11 @@ class Game():
             if set(test_faces_df.index)!=face_values:
                 raise ValueError("The faces on your dice are different!")
     def play(self, num_rolls):
-        '''creates a set of rolls from the supplied die list'''
+        '''ARGS:
+        num_rolls: takes integer to determine how many rolls are to be conducted.
+        DESCRIPTION:
+        Creates a dataframe of roll results with the roll number in the index and each column representing a die object. The
+        cell values then have the face rolled from each die on that roll.'''
         _results_df = pd.DataFrame(index=range(num_rolls))
         for i in range(len(self.die_list)):
             results = self.die_list[i].roll_die(num_rolls)
@@ -60,17 +78,23 @@ class Game():
         self._results_df = _results_df.rename_axis("Roll", axis=0)
         return(self._results_df)
     def return_play(self, format='wide'):
-        '''returns a wide or narrow data frame with the results from the rolls'''
+        '''ARGS:
+        format: takes string either 'wide' or 'narrow', defaults to wide.
+        DESCRIPTION:
+        Returns a wide or narrow data frame with the results from the rolls. If narrow, the index is a multi index
+        composed of the roll and die number.'''
+        _results_df = self._results_df
         if format != 'wide' and format!='narrow':
             raise ValueError("You've supplied an invalid format type!")
         if format=='narrow':
-            narrow_df = self._results_df.stack()
-            # INVESTIGATE THIS MORE, NEED TO RENAME THE COLUMN IN PLAY TO HAVE A HEADER FOR DIE
-            return(narrow_df.index)
-        copy_roll_results = copy.deepcopy(self._results_df)
+            narrow_df = _results_df.stack()
+            return(narrow_df)
+        else:
+            copy_roll_results = copy.deepcopy(self._results_df)
+            return(copy_roll_results)
 
 class Analyzer():
-    '''The class used to analyze played games. Requires a Game() class to initialize.'''
+    '''The class is used to analyze played games for overall results as well as special cases'''
     def __init__(self, game):
         '''initializes the analyzer and checks for a game'''
         if not isinstance(game, Game):
@@ -81,7 +105,6 @@ class Analyzer():
         '''counts how many times all the die objects were equal on the same roll'''
         _results_df = self.game._results_df
         jackpot_count = 0
-        print(_results_df)
         for row in _results_df.index:
             rolls = _results_df.loc[row]
             jackpot = all(value==rolls.loc[0] == value for value in rolls)

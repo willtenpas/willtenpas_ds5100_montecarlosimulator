@@ -1,0 +1,29 @@
+test_10_anal_face (__main__.monte_test_case)
+test of type returned by game play ... ok
+test_11_anal_comb (__main__.monte_test_case)
+test of type returned by comb count ... ok
+test_12_anal_perm (__main__.monte_test_case)
+test of type returned by perm count ... ok
+test_1_die_weights (__main__.monte_test_case)
+test of die init to check data frame ... ok
+test_2_change_weight (__main__.monte_test_case)
+test of change weight for new weight ... ok
+test_3_roll (__main__.monte_test_case)
+test of change weight for new weight ... ok
+test_4_d_state (__main__.monte_test_case)
+test of change weight for new weight ... ok
+test_5_g_init (__main__.monte_test_case)
+test of game initialization to see if you get correct error ... ok
+test_6_play (__main__.monte_test_case)
+test of type returned by playing game ... ok
+test_7_return_play (__main__.monte_test_case)
+test of type returned by game play ... ok
+test_8_anal_init (__main__.monte_test_case)
+test of analyzer initialization to see if you can supply non games ... ok
+test_9_anal_jack (__main__.monte_test_case)
+test of type returned by jackpot analyzer ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.581s
+
+OK
