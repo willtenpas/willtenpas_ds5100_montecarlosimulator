@@ -96,13 +96,19 @@ class Game():
 class Analyzer():
     '''The class is used to analyze played games for overall results as well as special cases'''
     def __init__(self, game):
-        '''initializes the analyzer and checks for a game'''
+        '''ARGS:
+        game: a single game object.
+        DESCRIPTION:
+        Initializes analyzer and verifies game object type.'''
         if not isinstance(game, Game):
             raise ValueError("You have not supplied a game!")
         self.game = game
         self.die_list = self.game.die_list
     def jackpot(self):
-        '''counts how many times all the die objects were equal on the same roll'''
+        '''ARGS:
+        none
+        DESCRIPTION:
+        Returns an integer of the instances where every die rolled hits the same face.'''
         _results_df = self.game._results_df
         jackpot_count = 0
         for row in _results_df.index:
@@ -111,7 +117,12 @@ class Analyzer():
             jackpot_count += jackpot
         return(jackpot_count)
     def facecounts(self):
-        '''returns a dataframe with a count for each face and how many times it was rolled in each roll'''
+        '''ARGS:
+        none
+        DESCRIPTION:
+        Returns a data frame of results for each face. Each row represents a roll
+        and each column represents a face. The individual cell values represent the
+        number of dies that landed on that face had in that particular roll.'''
         _results_df = self.game._results_df
         faces = self.die_list[0].die_state().index
         facecounts_df = pd.DataFrame(columns=faces, index = _results_df.index)
@@ -122,7 +133,12 @@ class Analyzer():
             facecounts_df.loc[index] = counts
         return(facecounts_df)
     def combocount(self):
-        '''returns a dataframe with a multi index of distinct combinations with their number of counts'''
+        '''ARGS:
+        none
+        DESCRIPTION:
+        Returns a data frame of unique combinations from the results data frame.
+        The index is the combination and the first column is the count that that
+        combination was rolled.'''
         #combinations don't care about order so H,T is the same as T,H
         _results_df = self.game._results_df
         #sort each combo so that T,H and H,T both become H,T, then make the results a tuple
@@ -138,7 +154,12 @@ class Analyzer():
         comb_df = pd.DataFrame(comb_counts.items(), columns=['Combination', 'Count'])
         return(comb_df)
     def permcount(self):
-        '''returns a dataframe with a multi index of distinct permutations with their number of counts'''
+        '''ARGS:
+        none
+        DESCRIPTION:
+        Returns a data frame of unique permutations from the results data frame.
+        The index is the permutation and the first column is the count that that
+        permutation was rolled.'''
         _results_df = self.game._results_df
         #need to conver each row entry into tuples, where the cell entry is an entry in the tuple
         perm_list = list(map(tuple, _results_df.values))
